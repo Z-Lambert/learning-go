@@ -47,6 +47,58 @@ func TestAdd(t *testing.T) {
 	})
 }
 
+func TestUpdate(t *testing.T) {
+	t.Run("Updating existing word", func(t *testing.T) {
+		word := "test"
+		definition := "this is just a test"
+		fakeDictionary := Dictionary{word: definition}
+		newDefinition := "new definition"
+		fakeDictionary.Update(word, newDefinition)
+
+		value, _ := fakeDictionary.Search(word)
+
+		if value != newDefinition {
+			t.Errorf("Expected %q but got %q", newDefinition, value)
+		}
+	})
+	t.Run("Updating non-existing word", func(t *testing.T) {
+		word := "test"
+		definition := "this is just a test"
+		fakeDictionary := Dictionary{word: definition}
+		newDefinition := "new definition"
+		updateErr := fakeDictionary.Update("invalid", newDefinition)
+
+		if updateErr != ErrNotFound {
+			t.Errorf("Expected %q but got %q", ErrNotFound, updateErr)
+		}
+	})
+}
+
+func TestDelete(t *testing.T) {
+	t.Run("Deleting existing word", func(t *testing.T) {
+		word := "test"
+		definition := "this is just a test"
+		fakeDictionary := Dictionary{word: definition}
+		err := fakeDictionary.Delete(word)
+		if err != nil {
+			t.Errorf("Expected no error but got %v", err)
+		}
+		if len(fakeDictionary) != 0 {
+			t.Errorf("Expected dictionary to be empty but got %v", fakeDictionary)
+		}
+	})
+	t.Run("Deleting non-existing word", func(t *testing.T) {
+		word := "test"
+		definition := "this is just a test"
+		fakeDictionary := Dictionary{word: definition}
+		err := fakeDictionary.Delete("invalid")
+
+		if err != ErrNotFound {
+			t.Errorf("Expected %q but got %q", ErrNotFound, err)
+		}
+	})
+}
+
 func assertStringsEqual(t testing.TB, want, got string) {
 	t.Helper()
 	if want != got {
